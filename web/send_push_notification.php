@@ -1,12 +1,9 @@
 <?php
+
 require __DIR__ . '/../vendor/autoload.php';
+
 use Minishlink\WebPush\WebPush;
 use Minishlink\WebPush\Subscription;
-
-// here I'll get the subscription endpoint in the POST parameters
-// but in reality, you'll get this information in your database
-// because you already stored it (cf. push_subscription.php)
-$subscription = Subscription::create(json_decode(file_get_contents('php://input'), true));
 
 $auth = array(
     'VAPID' => array(
@@ -18,18 +15,28 @@ $auth = array(
 
 $webPush = new WebPush($auth);
 
-$res = $webPush->sendNotification(
-    $subscription,
-    "Hello!"
-);
+$jsonStorage = new SubscriptionJsonPersistence(dirname(__DIR__) . '/storage/subscriptions.json');
 
+$subscriptions = $jsonStorage->fetchAll();
+
+foreach ($subscriptions as $subscription) {
+    $subscriptionObject = Subscription::create($subscription);
+    $res = $webPush->sendNotification(
+        $subscriptionObject,
+        "Hello subscribers, how are you?"
+    );
+}
+
+$reports = [];
 // handle eventual errors here, and remove the subscription from your server if it is expired
 foreach ($webPush->flush() as $report) {
     $endpoint = $report->getRequest()->getUri()->__toString();
-
     if ($report->isSuccess()) {
-        echo "[v] Message sent successfully for subscription {$endpoint}.";
+        $reports[] = [true, date('Y-m-d H:i:s'), "Message sent successfully for subscription {$endpoint}."];
     } else {
-        echo "[x] Message failed to sent for subscription {$endpoint}: {$report->getReason()}";
+        $reports[] = [false, date('Y-m-d H:i:s'), "Message failed to send for subscription {$endpoint}: {$report->getReason()}"];
     }
 }
+
+header('Content-Type: application/json; charset=utf-8');
+echo json_encode($reports);

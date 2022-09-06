@@ -240,7 +240,9 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch('send_push_notification.php', {
           method: 'POST',
           body: JSON.stringify(Object.assign(jsonSubscription, { contentEncoding })),
-        });
+        })
+          .then((response) => response.json())
+          .then((data) => console.log(data));
       })
   );
   /**
