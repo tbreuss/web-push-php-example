@@ -1,6 +1,6 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
+require dirname(__DIR__, 2) . '/vendor/autoload.php';
 
 use Minishlink\WebPush\WebPush;
 use Minishlink\WebPush\Subscription;
@@ -8,16 +8,16 @@ use Minishlink\WebPush\Subscription;
 $auth = array(
     'VAPID' => array(
         'subject' => 'https://github.com/Minishlink/web-push-php-example/',
-        'publicKey' => file_get_contents(__DIR__ . '/../keys/public_key.txt'), // don't forget that your public key also lives in app.js
-        'privateKey' => file_get_contents(__DIR__ . '/../keys/private_key.txt'), // in the real world, this would be in a secret file
+        'publicKey' => file_get_contents(dirname(__DIR__, 2) . '/keys/public_key.txt'), // don't forget that your public key also lives in app.js
+        'privateKey' => file_get_contents(dirname(__DIR__, 2) . '/keys/private_key.txt'), // in the real world, this would be in a secret file
     ),
 );
 
 $webPush = new WebPush($auth);
 
-$jsonStorage = new SubscriptionJsonPersistence(dirname(__DIR__) . '/storage/subscriptions.json');
+$jsonStorage = new SubscriptionJsonPersistence(dirname(__DIR__, 2) . '/storage/subscriptions.json');
 
-$subscriptions = $jsonStorage->fetchAll();
+$subscriptions = $jsonStorage->findAll();
 
 foreach ($subscriptions as $subscription) {
     $subscriptionObject = Subscription::create($subscription);

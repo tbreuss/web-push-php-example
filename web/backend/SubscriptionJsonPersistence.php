@@ -12,15 +12,15 @@ class SubscriptionJsonPersistence
     
     public function add(array $subscription): void
     {
-        $subscriptions = $this->fetchAll();
+        $subscriptions = $this->findAll();
         $subscriptions[] = $subscription;
         $this->overwriteAll($subscriptions);
     }
     
     public function remove(array $subscription): void
     {
-        $subscriptions = $this->fetchAll();
-        $key = array_search($subscription['authToken'], array_column($subscriptions, 'authToken'));
+        $subscriptions = $this->findAll();
+        $key = array_search($subscription['endpoint'], array_column($subscriptions, 'endpoint'));
         if ($key !== false) {
             unset($subscriptions[$key]);
             $this->overwriteAll($subscriptions);
@@ -29,15 +29,25 @@ class SubscriptionJsonPersistence
     
     public function update(array $subscription): void
     {
-        $subscriptions = $this->fetchAll();
-        $key = array_search($subscription['authToken'], array_column($subscriptions, 'authToken'));
+        $subscriptions = $this->findAll();
+        $key = array_search($subscription['endpoint'], array_column($subscriptions, 'endpoint'));
         if ($key !== false) {
             $subscriptions[$key] = $subscription;
             $this->overwriteAll($subscriptions);
         }
     }
     
-    public function fetchAll(): array
+    public function findByEndpoint(string $endpoint): ?array
+    {
+        $subscriptions = $this->findAll();
+        $key = array_search($endpoint, array_column($subscriptions, 'endpoint'));
+        if ($key !== false) {
+            return $subscriptions[$key];
+        }      
+        return null;
+    }
+    
+    public function findAll(): array
     {
         return json_decode(file_get_contents($this->path), true);
     }

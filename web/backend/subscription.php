@@ -11,7 +11,7 @@ if (!isset($subscription['endpoint'])) {
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-$jsonStorage = new SubscriptionJsonPersistence(dirname(__DIR__) . '/storage/subscriptions.json');
+$jsonStorage = new SubscriptionJsonPersistence(dirname(__DIR__, 2) . '/storage/subscriptions.json');
 
 switch ($method) {
     case 'POST':

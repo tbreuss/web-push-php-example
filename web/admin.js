@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   sendPushButton.addEventListener('click', () =>
-        fetch('send_push_notification.php', {
+        fetch('backend/notification_broadcast.php', {
           method: 'POST',
         })
           .then((response) => response.json())
